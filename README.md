@@ -80,7 +80,7 @@ Link to project in GitHub: https://github.com/RomiconEZ/CustomerBot
 * ![Python][Python.com]
 * <img src="readme_images/aiogram_logo.png" alt="lc_ch" style="width:100px; height:auto;">
 * ![Docker][Docker.com]
-* Init Backend Template: https://github.com/donBarbos/telegram-bot-template
+* Init Bot Template: https://github.com/donBarbos/telegram-bot-template
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -99,10 +99,13 @@ Link to project in GitHub: https://github.com/RomiconEZ/CustomerBot
 
 2. Copy the `.env.example` file in the directory and change the name to `.env`. Customize the env file for your project.
 
-3. Launch the Backend Server (https://github.com/RomiconEZ/GenerativeBackend)
+3. Compile locales with a separate command
+   ```shell
+   pybabel compile -d bot/locales
+   ```
+4. Launch the Backend Server (https://github.com/RomiconEZ/GenerativeBackend)
 
-
-4. In the terminal, navigate to the root directory of the cloned repository. Build the Docker containers with the following command:
+5. In the terminal, navigate to the root directory of the cloned repository. Build the Docker containers with the following command:
    ```shell
    docker compose up -d --build
    ```
