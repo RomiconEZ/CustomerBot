@@ -6,6 +6,7 @@ from icecream import ic
 
 from bot.core.config import settings
 from bot.core.loader import redis_client
+from bot.handlers.message import get_user_message_history_key
 
 router = Router(name="support")
 
@@ -20,11 +21,11 @@ async def support_handler(message: types.Message) -> None:
     username = message.from_user.username
 
     # Получаем историю из Redis
-    chat_id = message.chat.id
-    key = f"chat_{chat_id}_user_{user_id}_history"
+    key = get_user_message_history_key(user_id)
     history = await redis_client.lrange(key, 0, -1)  # Use `await` here
     history = [eval(item) for item in history]
 
+    ic(history)
     # Подготовка данных для отправки
     data = {
         "customer": {
@@ -49,7 +50,7 @@ async def support_handler(message: types.Message) -> None:
             if response.status == 201:
                 await message.answer(
                     _(
-                        "С вами свяжется тур-агента KareliaTour, "
+                        f"С вами свяжется тур-агента {settings.COMPANY_NAME}, "
                         "пожалуйста ожидайте обратной связи, по вашему обращению."
                     )
                 )
@@ -57,13 +58,13 @@ async def support_handler(message: types.Message) -> None:
                 await message.answer(
                     _(
                         "Пожалуйста, ожидайте, когда с вами свяжется "
-                        "тур-агент KareliaTour."
+                        f"тур-агент {settings.COMPANY_NAME}."
                     )
                 )
             else:
                 await message.answer(
                     _(
-                        "В данный момент тур-агенты KareliaTour не могут "
+                        f"В данный момент тур-агенты {settings.COMPANY_NAME} не могут "
                         "ответить по вашему обращению, пожалуйста, обратитесь позже"
                     )
                 )
