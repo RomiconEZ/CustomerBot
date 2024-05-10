@@ -6,6 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.i18n import gettext as _
 
 from bot.core.config import settings
+from bot.handlers.functions import cancel_if_command
 
 router = Router(name="review")
 
@@ -24,6 +25,10 @@ async def start_review(message: types.Message, state: FSMContext) -> None:
 @router.message(Form.review)
 async def receive_review(message: types.Message, state: FSMContext) -> None:
     """Получить и обработать отзыв от пользователя"""
+    if await cancel_if_command(message, state):
+        await message.answer(_("Добавление отзыва прервано."))
+        return
+
     review = message.text  # Текст отзыва от пользователя
 
     # Получаем Telegram ID пользователя
@@ -37,10 +42,10 @@ async def receive_review(message: types.Message, state: FSMContext) -> None:
     # Отправка POST-запроса
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            settings.PREFIX_GEN_BACKEND_URL
-            + f"review?customer_telegram_username={username}",
-            json=data,
-            headers={"Content-Type": "application/json", "accept": "application/json"},
+                settings.PREFIX_GEN_BACKEND_URL
+                + f"review?customer_telegram_username={username}",
+                json=data,
+                headers={"Content-Type": "application/json", "accept": "application/json"},
         ) as response:
             if response.status == 201:
                 await message.answer(_("Спасибо за ваш отзыв!"))

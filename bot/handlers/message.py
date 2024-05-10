@@ -1,22 +1,21 @@
 import asyncio
-import io
-from pathlib import Path
 
-import aiofiles
 import aiohttp
 from aiogram import Router, types
 from aiogram.filters import CommandStart
-from aiogram.types import BufferedInputFile, InputFile
-from icecream import ic
+from aiogram.types import BufferedInputFile
+from aiogram.utils.i18n import gettext as _
 
 from bot.core.config import settings
 from bot.core.loader import redis_client
 
 router = Router(name="message")
 
+
 def get_user_message_history_key(user_id):
     """Генерация ключа в базе данных для хранения истории сообщений пользователя"""
     return f"chat_user_{user_id}_history"
+
 
 async def handle_chat_history(redis_client, user_id, message_text, max_history_size=5):
     """
@@ -223,7 +222,7 @@ async def text_message_handler(message: types.Message) -> None:
                 settings.PREFIX_GEN_BACKEND_URL,
                 response_data["id"],
                 redis_client,
-                get_user_message_history_key(message.from_user.id)
+                get_user_message_history_key(message.from_user.id),
             )
             if assistant_response:
                 await message.answer(assistant_response)
@@ -245,6 +244,6 @@ async def text_message_handler(message: types.Message) -> None:
                         await message.answer_audio(audio_file_object)
 
             else:
-                await message.answer("В данный момент бот не доступен")
+                await message.answer(_("В данный момент бот не доступен"))
         else:
-            await message.answer("В данный момент бот не доступен")
+            await message.answer(_("В данный момент бот не доступен"))

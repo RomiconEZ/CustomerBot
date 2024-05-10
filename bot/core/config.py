@@ -89,7 +89,7 @@ class Settings(BotSettings, DBSettings, CacheSettings):
 
     SENTRY_DSN: str | None = None
 
-    AMPLITUDE_API_KEY: str  # or for example it could be POSTHOG_API_KEY
+    AMPLITUDE_API_KEY: str
 
 
 settings = Settings()

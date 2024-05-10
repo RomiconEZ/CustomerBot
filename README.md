@@ -116,6 +116,7 @@ Link to project in GitHub: https://github.com/RomiconEZ/CustomerBot
 
 ### Additionally
 * http://127.0.0.1:3000/ - Grafana
+* http://127.0.0.1:5010/ - Admin panel
 
 <!-- LICENSE -->
 ## License
