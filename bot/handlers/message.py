@@ -214,36 +214,41 @@ async def text_message_handler(message: types.Message) -> None:
         + "customer/audio_generation/{}".format(message.from_user.id)
     )
 
-    async with aiohttp.ClientSession() as session:
-        response_data = await create_task(session, url_create_task, data)
-        if response_data:
-            assistant_response = await process_task_result(
-                session,
-                settings.PREFIX_GEN_BACKEND_URL,
-                response_data["id"],
-                redis_client,
-                get_user_message_history_key(message.from_user.id),
-            )
-            if assistant_response:
-                await message.answer(assistant_response)
+    try:
 
-                audio_data = prepare_data_for_audio_api(
-                    user_id=message.from_user.id,
-                    username=message.from_user.username,
-                    text=assistant_response,
+        async with aiohttp.ClientSession() as session:
+            response_data = await create_task(session, url_create_task, data)
+            if response_data:
+                assistant_response = await process_task_result(
+                    session,
+                    settings.PREFIX_GEN_BACKEND_URL,
+                    response_data["id"],
+                    redis_client,
+                    get_user_message_history_key(message.from_user.id),
                 )
+                if assistant_response:
+                    await message.answer(assistant_response)
 
-                audio_task_id = await create_audio_task(
-                    session, url_create_audio_task, audio_data
-                )
-                if audio_task_id:
-                    audio_file_object = await process_audio_task_result(
-                        session, settings.PREFIX_GEN_BACKEND_URL, audio_task_id
+                    audio_data = prepare_data_for_audio_api(
+                        user_id=message.from_user.id,
+                        username=message.from_user.username,
+                        text=assistant_response,
                     )
-                    if audio_file_object:
-                        await message.answer_audio(audio_file_object)
 
+                    audio_task_id = await create_audio_task(
+                        session, url_create_audio_task, audio_data
+                    )
+                    if audio_task_id:
+                        audio_file_object = await process_audio_task_result(
+                            session, settings.PREFIX_GEN_BACKEND_URL, audio_task_id
+                        )
+                        if audio_file_object:
+                            await message.answer_audio(audio_file_object)
+
+                else:
+                    await message.answer(_("В данный момент бот не доступен"))
             else:
                 await message.answer(_("В данный момент бот не доступен"))
-        else:
-            await message.answer(_("В данный момент бот не доступен"))
+
+    except Exception as e:
+        await message.answer(_("В данный момент бот не доступен"))

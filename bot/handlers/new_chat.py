@@ -12,8 +12,12 @@ router = Router(name="new_chat")
 async def new_chat_handler(message: types.Message) -> None:
     """Create new chat."""
     user_id = message.from_user.id
-    key = get_user_message_history_key(user_id)
 
-    await redis_client.delete(key)
+    try:
+        key = get_user_message_history_key(user_id)
 
-    await message.answer(_("Новый чат создан!"))
+        await redis_client.delete(key)
+
+        await message.answer(_("Новый чат создан!"))
+    except Exception as e:
+        await message.answer(_("Не удалось создать новый чат"))

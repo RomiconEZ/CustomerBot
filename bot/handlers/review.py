@@ -39,18 +39,24 @@ async def receive_review(message: types.Message, state: FSMContext) -> None:
 
     data = {"text": review, "created_by_customer_id": user_id}
 
-    # Отправка POST-запроса
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-                settings.PREFIX_GEN_BACKEND_URL
-                + f"review?customer_telegram_username={username}",
-                json=data,
-                headers={"Content-Type": "application/json", "accept": "application/json"},
-        ) as response:
-            if response.status == 201:
-                await message.answer(_("Спасибо за ваш отзыв!"))
-            else:
-                await message.answer(
-                    _("Извините, в данный момент невозможно оставить отзыв.")
-                )
+    try:
+        # Отправка POST-запроса
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                    settings.PREFIX_GEN_BACKEND_URL
+                    + f"review?customer_telegram_username={username}",
+                    json=data,
+                    headers={"Content-Type": "application/json", "accept": "application/json"},
+            ) as response:
+                if response.status == 201:
+                    await message.answer(_("Спасибо за ваш отзыв!"))
+                else:
+                    await message.answer(
+                        _("Извините, в данный момент невозможно оставить отзыв.")
+                    )
+    except Exception as e:
+        await message.answer(
+            _("Извините, в данный момент невозможно оставить отзыв.")
+        )
+
     await state.clear()
