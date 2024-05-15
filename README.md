@@ -41,6 +41,8 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation--установка">Installation / Установка</a></li>
+         <li><a href="#additionally">Additionally / Дополнительно</a></li>
+         <li><a href="#chatbot-commands">Chatbot Commands / Команды чат-бота</a></li>
       </ul>
     </li>
     <li><a href="#license">License</a></li>
@@ -117,6 +119,15 @@ Link to project in GitHub: https://github.com/RomiconEZ/CustomerBot
 ### Additionally
 * http://127.0.0.1:3000/ - Grafana
 * http://127.0.0.1:5010/ - Admin panel
+
+### Chatbot Commands
+* **/info** - information about the bot / информация о боте
+* **/supports** - operator call / вызов оператора
+* **/new_chat** - create a new chat / создать новый чат (clear chat history)
+* **/review** - give feedback / оставить отзыв
+
+
+* **message** - generating a response to a message from LLM / генерация ответа на сообщение от LLM
 
 <!-- LICENSE -->
 ## License
