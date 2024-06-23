@@ -18,7 +18,7 @@ async def add_user(
     referrer: str | None,
 ) -> None:
     """Add a new user to the database."""
-    user_id: int = user.id
+    user_id: int = int(user.id)
     first_name: str = user.first_name
     last_name: str | None = user.last_name
     username: str | None = user.username

@@ -5,11 +5,14 @@ from aiogram import Router, types
 from aiogram.filters import CommandStart
 from aiogram.types import BufferedInputFile
 from aiogram.utils.i18n import gettext as _
+from aiohttp import ClientConnectorError
+from loguru import logger
 
 from bot.core.config import settings
 from bot.core.loader import redis_client
 
 router = Router(name="message")
+bot_unavailability_text = 'В данный момент бот не доступен.'
 
 
 def get_user_message_history_key(user_id):
@@ -98,9 +101,9 @@ async def create_task(session, url, data):
         dict or None: Ответ от API или None при ошибке.
     """
     async with session.post(
-        url,
-        json=data,
-        headers={"Content-Type": "application/json", "accept": "application/json"},
+            url,
+            json=data,
+            headers={"Content-Type": "application/json", "accept": "application/json"},
     ) as response:
         if response.status == 201:
             return await response.json()
@@ -150,9 +153,9 @@ async def create_audio_task(session, url, data):
         str or None: ID аудио задачи или None при ошибке.
     """
     async with session.post(
-        url,
-        json=data,
-        headers={"Content-Type": "application/json", "accept": "application/json"},
+            url,
+            json=data,
+            headers={"Content-Type": "application/json", "accept": "application/json"},
     ) as response:
         if response.status == 201:
             response_data = await response.json()
@@ -206,12 +209,12 @@ async def text_message_handler(message: types.Message) -> None:
     )
 
     url_create_task = (
-        settings.PREFIX_GEN_BACKEND_URL
-        + "customer/answer_generation/{}".format(message.from_user.id)
+            settings.PREFIX_GEN_BACKEND_URL
+            + "customer/answer_generation/{}".format(message.from_user.id)
     )
     url_create_audio_task = (
-        settings.PREFIX_GEN_BACKEND_URL
-        + "customer/audio_generation/{}".format(message.from_user.id)
+            settings.PREFIX_GEN_BACKEND_URL
+            + "customer/audio_generation/{}".format(message.from_user.id)
     )
 
     try:
@@ -246,9 +249,19 @@ async def text_message_handler(message: types.Message) -> None:
                             await message.answer_audio(audio_file_object)
 
                 else:
-                    await message.answer(_("В данный момент бот не доступен"))
+                    await message.answer(_(bot_unavailability_text))
             else:
-                await message.answer(_("В данный момент бот не доступен"))
+                await message.answer(_(bot_unavailability_text))
+
+
+    except ClientConnectorError:
+
+        logger.error("The connection to the backend server could not be established.")
+
+        await message.answer(_(bot_unavailability_text))
 
     except Exception as e:
-        await message.answer(_("В данный момент бот не доступен"))
+
+        logger.error(f"An error has occurred: \n {e}")
+
+        await message.answer(_(bot_unavailability_text))

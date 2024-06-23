@@ -4,12 +4,14 @@ from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.i18n import gettext as _
+from aiohttp import ClientConnectorError
+from loguru import logger
 
 from bot.core.config import settings
 from bot.handlers.functions import cancel_if_command
 
 router = Router(name="review")
-
+give_feedback_error_text = "Извините, в данный момент невозможно оставить отзыв."
 
 class Form(StatesGroup):
     review = State()
@@ -40,7 +42,6 @@ async def receive_review(message: types.Message, state: FSMContext) -> None:
     data = {"text": review, "created_by_customer_id": user_id}
 
     try:
-        # Отправка POST-запроса
         async with aiohttp.ClientSession() as session:
             async with session.post(
                     settings.PREFIX_GEN_BACKEND_URL
@@ -52,11 +53,13 @@ async def receive_review(message: types.Message, state: FSMContext) -> None:
                     await message.answer(_("Спасибо за ваш отзыв!"))
                 else:
                     await message.answer(
-                        _("Извините, в данный момент невозможно оставить отзыв.")
+                        _(give_feedback_error_text)
                     )
+    except ClientConnectorError:
+        logger.error("The connection to the backend server could not be established.")
+        await message.answer(_(give_feedback_error_text))
     except Exception as e:
-        await message.answer(
-            _("Извините, в данный момент невозможно оставить отзыв.")
-        )
+        logger.error(f"An error has occurred: \n {e}")
+        await message.answer(_(give_feedback_error_text))
 
     await state.clear()

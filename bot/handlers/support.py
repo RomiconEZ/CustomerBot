@@ -2,12 +2,16 @@ import aiohttp
 from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.utils.i18n import gettext as _
+from aiohttp import ClientConnectorError
+from loguru import logger
 
 from bot.core.config import settings
 from bot.core.loader import redis_client
 from bot.handlers.message import get_user_message_history_key
 
 router = Router(name="support")
+support_error_text = (f"В данный момент тур-агенты {settings.COMPANY_NAME} не могут ответить по вашему обращению, "
+                      f"пожалуйста, обратитесь позже")
 
 
 @router.message(Command(commands=["supports", "support", "оператор", "помощь"]))
@@ -41,9 +45,9 @@ async def support_handler(message: types.Message) -> None:
         # Отправка POST-запроса
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                settings.PREFIX_GEN_BACKEND_URL + "waiting_customer",
-                json=data,
-                headers={"Content-Type": "application/json", "accept": "application/json"},
+                    settings.PREFIX_GEN_BACKEND_URL + "waiting_customer",
+                    json=data,
+                    headers={"Content-Type": "application/json", "accept": "application/json"},
             ) as response:
                 if response.status == 201:
                     await message.answer(
@@ -61,15 +65,11 @@ async def support_handler(message: types.Message) -> None:
                     )
                 else:
                     await message.answer(
-                        _(
-                            f"В данный момент тур-агенты {settings.COMPANY_NAME} не могут "
-                            "ответить по вашему обращению, пожалуйста, обратитесь позже"
-                        )
+                        _(support_error_text)
                     )
+    except ClientConnectorError:
+        logger.error("The connection to the backend server could not be established.")
+        await message.answer(_(support_error_text))
     except Exception as e:
-        await message.answer(
-            _(
-                f"В данный момент тур-агенты {settings.COMPANY_NAME} не могут "
-                "ответить по вашему обращению, пожалуйста, обратитесь позже"
-            )
-        )
+        logger.error(f"An error has occurred: \n {e}")
+        await message.answer(_(support_error_text))
