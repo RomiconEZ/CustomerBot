@@ -1,4 +1,5 @@
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
 from aiogram.utils.i18n.core import I18n
@@ -11,7 +12,7 @@ app = web.Application()
 
 token = settings.BOT_TOKEN
 
-bot = Bot(token=token, parse_mode=ParseMode.HTML)
+bot = Bot(token=token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 redis_client = Redis(
     connection_pool=ConnectionPool(
