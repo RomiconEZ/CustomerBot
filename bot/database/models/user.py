@@ -1,7 +1,6 @@
 # ruff: noqa: TCH001, TCH003, A003, F821
 from __future__ import annotations
 
-from sqlalchemy import BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 
 from bot.database.models.base import Base, created_at, int_pk
@@ -10,7 +9,7 @@ from bot.database.models.base import Base, created_at, int_pk
 class UserModel(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, unique=True, autoincrement=False)
+    id: Mapped[int_pk]
     first_name: Mapped[str]
     last_name: Mapped[str | None]
     username: Mapped[str | None]
