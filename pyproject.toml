@@ -45,7 +45,7 @@ mypy = "^1.17.1"
 pre-commit = "^4.2.0"
 black = "^25.1.0"
 isort = "^6.0.1"
-greenlet = "^3.2.3"
+greenlet = "^3.2.4"
 
 [tool.ruff]
 fix = true
